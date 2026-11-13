@@ -1,0 +1,30 @@
+/* A quieter graphite palette keeps long sessions comfortable. */
+:root{
+  color-scheme:dark;
+  --bg-root:#111614; --bg-panel:#151a17; --bg-card:#1a201d; --bg-input:#141916;
+  --border:#29312c; --border-light:#37423a;
+  --text:#e8eee9; --text2:#a2ada5; --text3:#7d8980;
+  --accent:#b4e2c6; --accent-glow:#d1f0dd;
+  --green:#acd9bc; --green-bg:#20352a;
+  --orange:#ddae77; --orange-bg:#362a1d;
+  --purple:#c0b2d5; --purple-bg:#302838;
+  --cyan:#9bbfbd; --cyan-bg:#21302f;
+  --red:#e99491; --red-bg:#392523;
+  --yellow:#e4c589; --yellow-bg:#342e21;
+  --radius:10px; --radius-sm:6px;
+  --shadow:0 12px 36px rgba(0,0,0,.24);
+  --font:'Segoe UI','Microsoft YaHei UI','Microsoft YaHei','PingFang SC',sans-serif;
+  --mono:'Cascadia Code','JetBrains Mono','Fira Code',monospace;
+  --focus:0 0 0 3px rgba(180,226,198,.16);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--bg-root);color:var(--text);height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;font-size:13px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button,input,textarea,select{font:inherit;color:inherit}
+button{color:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:0;box-shadow:var(--focus)!important}
+::selection{background:rgba(180,226,198,.23);color:var(--text)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#344038;border-radius:8px}
+::-webkit-scrollbar-thumb:hover{background:#536256}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}

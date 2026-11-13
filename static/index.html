@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111614">
+<meta name="description" content="Agent Framework 多智能体协作工作台">
+<title>Agent Framework · 智能体工作台</title>
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/css/theme.css">
+<link rel="stylesheet" href="/static/css/components.css">
+<link rel="stylesheet" href="/static/css/workspace.css">
+</head>
+<body>
+<svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M9 21h6"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11a8 8 0 0 1-8 8H7l-5 3 1.5-6A8 8 0 0 1 3 5a10 10 0 0 1 18 6Z"/><path d="M8 9h8M8 13h5"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-attach" viewBox="0 0 24 24"><path d="m8 12 7-7a4 4 0 0 1 6 6L10 22a6 6 0 0 1-8-8L13 3m-8 14a2 2 0 0 0 3 3L19 9" transform="translate(1 -1) scale(.9)"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 3v17h17M8 15V9m5 6V5m5 10v-4"/></symbol>
+<symbol id="i-flow" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="6" rx="2"/><rect x="2" y="16" width="7" height="6" rx="2"/><rect x="15" y="16" width="7" height="6" rx="2"/><path d="M12 8v4H5.5v4M12 12h6.5v4"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24"><path d="m14 4 6 6M3 21l2-7L17 2l5 5L10 19l-7 2Z"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol>
+</defs></svg>
+<div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+<div id="shortcut-panel" role="dialog" aria-modal="true" aria-labelledby="shortcut-title" onclick="if(event.target===this)closeShortcutPanel()">
+ <div class="sc-box"><button class="close-btn" onclick="closeShortcutPanel()" aria-label="关闭快捷键">×</button><h3 id="shortcut-title">键盘快捷键</h3>
+ <div class="sc-group"><div class="sc-group-title">工作台</div>
+ <div class="sc-row"><span class="sc-desc">搜索工作区</span><kbd class="sc-key">Ctrl K</kbd></div>
+ <div class="sc-row"><span class="sc-desc">折叠侧边栏</span><kbd class="sc-key">Ctrl B</kbd></div>
+ <div class="sc-row"><span class="sc-desc">新建会话</span><kbd class="sc-key">Ctrl N</kbd></div>
+ <div class="sc-row"><span class="sc-desc">快捷键帮助</span><kbd class="sc-key">Ctrl /</kbd></div>
+ <div class="sc-row"><span class="sc-desc">关闭面板</span><kbd class="sc-key">Esc</kbd></div></div>
+ <div class="sc-group"><div class="sc-group-title">消息</div><div class="sc-row"><span class="sc-desc">发送消息</span><kbd class="sc-key">Enter</kbd></div><div class="sc-row"><span class="sc-desc">输入换行</span><kbd class="sc-key">Shift Enter</kbd></div></div>
+ <div class="sc-group"><div class="sc-group-title">会话</div><div class="sc-row"><span class="sc-desc">切换上一 / 下一会话</span><kbd class="sc-key">Ctrl , / .</kbd></div></div>
+ </div>
+</div>
+<div id="login-overlay">
+ <div class="login-scene">
+  <div class="login-story">
+   <div class="brand-lockup"><span class="brand-mark"><svg class="icon"><use href="#i-grid"/></svg></span><span>Agent Framework<small>YOUR AGENT WORKSPACE</small></span></div>
+   <div class="login-story-copy"><span class="eyebrow">从想法，到完成。</span><h1>一个工作台，<br>让智能体协同起来。</h1><p>拆解复杂任务，连接专业能力。<br>把注意力留给真正重要的创造。</p></div>
+   <div class="login-pipeline"><span><i>01</i> 描述任务</span><b>→</b><span><i>02</i> 智能协作</span><b>→</b><span><i>03</i> 交付结果</span></div>
+   <div class="login-footnote">BUILT FOR FOCUSED WORK <span>●</span> POWERED BY AGENTS</div>
+  </div>
+  <div class="login-box">
+   <div class="login-overline">WORKSPACE ACCESS</div><h2>欢迎回来</h2><div class="sub">登录，继续你的下一项创造。</div>
+   <form onsubmit="event.preventDefault();doLogin()">
+    <label for="login-user">用户名</label><input id="login-user" name="username" type="text" placeholder="输入用户名" autocomplete="username" required autofocus>
+    <label for="login-pass">密码</label><input id="login-pass" name="password" type="password" placeholder="输入密码" autocomplete="current-password" required>
+    <div class="err" id="login-err" role="alert"></div><button id="login-btn" type="submit">进入工作台 <span>↗</span></button>
+   </form>
+   <div class="hint">首次使用 · 默认账户 <code>admin / admin123</code></div><div class="login-version" id="vtag">Agent Framework · v3.0</div>
+  </div>
+ </div>
+</div>
+<header id="topbar">
+ <div class="topbar-brand"><button class="tb-btn icon-btn" id="menu-toggle" onclick="toggleSidebar()" title="切换侧边栏 (Ctrl+B)" aria-label="切换侧边栏" aria-expanded="true"><svg class="icon"><use href="#i-menu"/></svg></button><span class="brand-mark"><svg class="icon"><use href="#i-grid"/></svg></span><span class="logo">Agent Framework</span></div>
+ <div class="topbar-breadcrumb">工作空间 <span>/</span> <b>智能体工作台</b></div><span class="tb-spacer"></span>
+ <div class="search-box"><svg class="icon search-icon"><use href="#i-search"/></svg><input id="global-search" type="search" placeholder="搜索工作区…" aria-label="搜索会话、任务和文件" autocomplete="off"><kbd class="search-kbd" id="search-kbd">Ctrl K</kbd></div>
+ <span id="md-badge" class="badge b-echo" title="当前模型运行模式">检测中</span><span id="ws-dot" class="ws-dot" title="正在连接"></span>
+ <button class="tb-btn icon-btn" id="notif-btn" onclick="toggleNotifPanel()" title="通知" aria-label="通知"><svg class="icon"><use href="#i-bell"/></svg><span class="notif-dot" id="notif-dot"></span></button>
+ <button class="tb-btn icon-btn" onclick="openSettings()" title="系统设置" aria-label="系统设置"><svg class="icon"><use href="#i-settings"/></svg></button>
+ <button class="tb-btn" id="admin-btn" onclick="openAdmin()" style="display:none">用户管理</button>
+ <div class="user-dropdown" id="user-dropdown"><button class="ud-trigger" onclick="toggleUserMenu()" aria-label="账户菜单"><span class="ud-avatar" id="ud-avatar">A</span><span class="ud-name" id="ud-name">账户</span><span class="ud-arrow">⌄</span></button><div class="ud-menu" id="ud-menu"><button class="ud-menu-item" onclick="openSettings()">系统设置</button><button class="ud-menu-item danger" onclick="doLogout()">退出登录</button></div></div>
+ <div class="notif-panel" id="notif-panel"><div class="np-header"><span>通知中心</span><button onclick="clearNotifications()">清空</button></div><div id="notif-list"><div class="np-empty">暂无通知</div></div></div>
+</header>
+<button id="sidebar-backdrop" onclick="closeSidePanels()" aria-label="关闭侧栏"></button>
+<div id="main">
+<aside id="left-panel" aria-label="工作区导航">
+ <div class="sidebar-intro"><div class="workspace-label"><span class="workspace-avatar">W</span><span>我的工作空间<small>PERSONAL WORKSPACE</small></span><span class="workspace-chevron">⌄</span></div><button class="new-session-btn" onclick="newSession()"><svg class="icon"><use href="#i-plus"/></svg> 新建任务 <kbd>Ctrl N</kbd></button></div>
+ <section class="panel-section session-section"><div class="sec-hdr"><span class="sec-title">最近会话</span><span class="section-caption">HISTORY</span></div><select id="sess-select" class="sr-only" aria-label="切换会话" onchange="loadSession(this.value)"><option value="">新建会话</option></select><div id="session-list"><div class="session-empty">还没有会话，从一个想法开始。</div></div></section>
+ <section class="panel-section"><div class="sec-hdr"><span class="sec-title">智能体团队 <span id="agent-count-tag">0/0</span></span><div class="sec-actions"><button onclick="refreshAgents()" title="刷新智能体" aria-label="刷新智能体">↻</button><button onclick="showNewAgent()" title="新建智能体" aria-label="新建智能体">+</button></div></div><div id="agent-list"><div class="session-empty">登录后加载智能体</div></div></section>
+ <section class="panel-section skills-section"><div id="skill-pool-header"><span class="sec-title">技能库</span><span class="sp-count" id="sp-count">待加载</span><button class="sp-toggle" id="sp-toggle" onclick="toggleSkillPool()" title="折叠技能库" aria-label="折叠技能库">−</button></div><div id="skill-pool"></div><button id="sp-expand-btn" onclick="expandSkillPool()" style="display:none">查看全部技能 ↓</button></section>
+ <section class="panel-section history-section"><div class="sec-hdr"><span class="sec-title">运行记录</span><span id="task-count" class="section-caption"></span></div><div id="hist-list"><div class="session-empty">任务运行后将在这里显示</div></div></section>
+ <div class="sidebar-footer"><button class="sidebar-help" onclick="openShortcutPanel()"><span>⌘</span> 快捷键与帮助 <kbd>Ctrl /</kbd></button><div id="user-bar"><div class="u-avatar" id="u-avatar">A</div><div class="u-info"><div class="u-name" id="u-name">未登录</div><div class="u-role" id="u-role">—</div></div><button id="u-more-btn" onclick="toggleUserMore()" title="账户菜单" aria-label="账户菜单">···</button></div><div id="ws-conn-status"><span class="connection-dot"></span>正在连接服务器</div></div>
+</aside>
+<main id="center-panel">
+ <header class="conversation-header"><div class="conversation-heading"><div class="conversation-eyebrow">WORKSPACE <span>/</span> CONVERSATION</div><h1 id="conversation-title">开启新的任务</h1><p id="conversation-subtitle">把想法交给智能体，让协作自然发生。</p></div><div class="conversation-actions"><span id="run-state" class="run-state">准备就绪</span><button class="quiet-btn" onclick="renameCurrentSession()" title="重命名会话" aria-label="重命名会话"><svg class="icon"><use href="#i-edit"/></svg></button><button class="quiet-btn" onclick="exportChat()" title="导出会话" aria-label="导出会话"><svg class="icon"><use href="#i-download"/></svg></button><button class="quiet-btn delete-session" onclick="if(_currentSid)deleteSession(_currentSid)" title="删除会话" aria-label="删除会话"><svg class="icon"><use href="#i-trash"/></svg></button><button class="quiet-btn inspector-toggle" onclick="toggleInspector()" title="执行概览" aria-label="执行概览"><svg class="icon"><use href="#i-chart"/></svg></button></div></header>
+ <div id="guest-banner">只读模式 · 你可以查看会话和任务执行过程</div>
+ <div id="msg-area" role="log" aria-label="任务对话"><div class="welcome empty-state"><div class="welcome-kicker">YOUR NEXT IDEA STARTS HERE</div><div class="welcome-mark">✳</div><h2 class="welcome-title">今天，一起完成什么？</h2><p class="welcome-description">从一个问题到一份完整交付，<br>让专业智能体为你分工协作。</p><div class="starter-grid"><button class="starter-card" onclick="useTemplate('code-review')"><span class="starter-icon">&lt;/&gt;</span><span class="starter-label">审查一段代码 <b>↗</b></span><span class="starter-copy">发现潜在问题，获得改进建议</span></button><button class="starter-card" onclick="useTemplate('research')"><span class="starter-icon">⌕</span><span class="starter-label">探索一个课题 <b>↗</b></span><span class="starter-copy">收集信息，整理研究思路</span></button><button class="starter-card" onclick="useTemplate('architecture')"><span class="starter-icon">◇</span><span class="starter-label">梳理项目架构 <b>↗</b></span><span class="starter-copy">理解模块，找到优化方向</span></button></div><div class="welcome-footnote"><span></span> 你的目标，由团队协作完成</div></div></div>
+ <div id="input-bar"><div class="composer-box"><label class="sr-only" for="inp">任务内容</label><textarea id="inp" rows="2" placeholder="描述你的任务，或输入 / 使用快捷指令…" maxlength="32000"></textarea><div class="composer-toolbar"><div class="composer-tools"><button class="input-extra-btn" onclick="uploadFile()" title="附加文本文件" aria-label="附加文本文件"><svg class="icon"><use href="#i-attach"/></svg></button><span class="composer-divider"></span><span class="composer-agent"><span class="connection-dot"></span> 智能体协作</span></div><div class="composer-send"><span class="input-key-hint">Enter 发送 <span>·</span> Shift + Enter 换行</span><button class="send-btn" id="snd" onclick="send()" aria-label="发送消息"><svg class="icon"><use href="#i-arrow"/></svg></button></div></div></div><div class="composer-bottom"><div class="slash-btns"><button onclick="quickCmd('/review')">/review</button><button onclick="quickCmd('/summarize')">/summarize</button><button onclick="quickCmd('/test')">/test</button><button onclick="quickCmd('/search')">/search</button></div><span id="composer-status" role="status">连接后即可开始</span></div></div>
+</main>
+<aside id="right-panel" aria-label="任务执行概览">
+ <div class="inspector-heading"><div><span class="eyebrow">LIVE INSIGHTS</span><h2>执行概览</h2></div><svg class="icon"><use href="#i-chart"/></svg></div>
+ <section class="panel-section workspace-section"><div class="card ws-card" id="ws-card"><div class="ws-name"><span class="dot" id="ws-status-dot"></span><span id="ws-name-text">等待新任务</span><span id="ws-status-label">待开始</span></div><div class="ws-meta"><span id="ws-created">创建: —</span><span id="ws-updated">更新: —</span></div><div class="ws-progress"><div class="lbl"><span>完成进度</span><span id="ws-progress-text">0%</span></div><div class="bar"><div class="fill fill-blue" id="ws-progress-fill" style="width:0%"></div></div></div></div></section>
+ <section class="panel-section"><div class="sec-hdr"><span class="sec-title">任务执行图</span><svg class="icon section-icon"><use href="#i-flow"/></svg></div><div class="card" id="dag-card"><div id="dag-container"><svg viewBox="0 0 260 175" id="dag-svg" role="img" aria-label="任务执行图"><text x="130" y="85" fill="currentColor" font-size="11" text-anchor="middle">发送任务后查看执行流程</text></svg></div><button class="dag-expand-btn panel-link" onclick="toggleDAG()">查看任务详情 <span>↗</span></button><div id="dag-full" style="display:none"></div></div></section>
+ <section class="panel-section"><div class="sec-hdr"><span class="sec-title">本次会话</span><span class="section-caption">METRICS</span></div><div class="metric-row"><div class="card metric-card"><div class="m-label">任务成功率</div><div class="m-value m-green" id="met-success">—</div></div><div class="card metric-card"><div class="m-label">平均响应</div><div class="m-value" id="met-latency">—</div></div><div class="card metric-card"><div class="m-label">工具调用</div><div class="m-value" id="met-tools">0</div></div><div class="card metric-card" title="按估算费率计算，不代表实际账单"><div class="m-label">估算费用</div><div class="m-value" id="met-cost">$0.000</div></div></div></section>
+ <section class="panel-section"><div class="sec-hdr"><span class="sec-title">质量评估</span><span class="section-caption">QUALITY</span></div><div class="card" id="score-card"><div id="score-gauge"><svg width="86" height="86" viewBox="0 0 90 90"><circle cx="45" cy="45" r="36" fill="none" stroke="var(--border)" stroke-width="5"/><circle cx="45" cy="45" r="36" fill="none" stroke="var(--green)" stroke-width="5" stroke-dasharray="0 226" stroke-linecap="round" transform="rotate(-90 45 45)" id="score-ring"/><text x="45" y="43" text-anchor="middle" fill="var(--text)" font-size="22" font-weight="600" id="score-total">—</text><text x="45" y="60" text-anchor="middle" fill="var(--text3)" font-size="9">综合评分</text></svg></div><div class="score-detail"><div class="score-item"><span class="si-label">正确性</span><span class="si-stars" id="sc-correct">—</span></div><div class="score-item"><span class="si-label">完整性</span><span class="si-stars" id="sc-complete">—</span></div><div class="score-item"><span class="si-label">执行效率</span><span class="si-stars" id="sc-efficiency">—</span></div><div class="score-item"><span class="si-label">表达质量</span><span class="si-stars" id="sc-tone">—</span></div></div><button class="score-expand-btn panel-link" onclick="toggleScoreDetail()">查看评分详情 <span>↗</span></button><div id="score-detail-extra" style="display:none"></div></div></section>
+ <section class="panel-section system-section"><div class="sec-hdr"><span class="sec-title">系统状态</span><span id="sys-conn">连接中</span></div><div class="card"><div class="sys-item"><div class="lbl"><span>CPU</span><span id="sys-cpu">未采集</span></div><div class="bar"><div class="fill fill-blue" id="sys-cpu-bar" style="width:0%"></div></div></div><div class="sys-item"><div class="lbl"><span>内存</span><span id="sys-mem">未采集</span></div><div class="bar"><div class="fill fill-green" id="sys-mem-bar" style="width:0%"></div></div></div><div class="sys-item"><div class="lbl"><span>磁盘</span><span id="sys-disk">未采集</span></div><div class="bar"><div class="fill fill-orange" id="sys-disk-bar" style="width:0%"></div></div></div><div class="sys-item network-item"><div class="lbl"><span>服务连接</span><span id="sys-net">连接中</span></div><div class="bar" hidden><div id="sys-net-bar"></div></div></div></div></section>
+ <div class="inspector-footnote">AGENT FRAMEWORK <span>V3.0</span></div>
+</aside>
+</div>
+<!-- Admin Panel -->
+<div role="dialog" aria-modal="true" class="modal-overlay" id="admin-panel">
+  <div class="modal-box">
+    <button class="close-btn" aria-label="关闭面板" onclick="closeAdmin()">&times;</button>
+    <h3>用户管理</h3>
+    <table><thead><tr><th>用户名</th><th>显示名</th><th>角色</th><th>操作</th></tr></thead>
+    <tbody id="admin-user-list"></tbody></table>
+    <h4>创建用户</h4>
+    <div style="display:flex;gap:6px">
+      <input type="text" id="au-username" aria-label="用户名" placeholder="用户名" style="flex:1">
+      <input id="au-password" aria-label="密码" placeholder="密码" type="password" style="flex:1">
+      <input type="text" id="au-display" aria-label="显示名" placeholder="显示名" style="flex:1">
+      <select id="au-role" style="width:80px"><option value="developer">研发</option><option value="guest">游客</option></select>
+      <button class="btn-primary" onclick="adminAddUser()">创建</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Panel -->
+<div role="dialog" aria-modal="true" class="modal-overlay" id="settings-panel">
+  <div class="modal-box" style="width:600px">
+    <button class="close-btn" aria-label="关闭面板" onclick="closeSettings()">&times;</button>
+    <h3>系统设置</h3>
+
+    <!-- 默认模型（全局） -->
+    <h4>默认推理模型</h4>
+    <div style="display:flex;gap:8px;margin-bottom:6px">
+      <select id="set-model" style="flex:1">
+        <option value="deepseek-chat">DeepSeek V3 (deepseek-chat)</option>
+        <option value="deepseek-reasoner">DeepSeek R1 (deepseek-reasoner)</option>
+        <option value="deepseek-v4-pro">DeepSeek V4 Pro</option>
+        <option value="gpt-4o">GPT-4o</option>
+        <option value="gpt-4o-mini">GPT-4o Mini</option>
+        <option value="claude-sonnet-4-6">Claude Sonnet 4.6</option>
+        <option value="claude-opus-4-6">Claude Opus 4.6</option>
+        <option value="claude-haiku-4-6">Claude Haiku 4.6</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:4px">
+      <input type="text" id="set-base-url" aria-label="API 端点 (https://api.deepseek.com/v1)" placeholder="API 端点 (https://api.deepseek.com/v1)" style="flex:1">
+      <input id="set-api-key" type="password" aria-label="API Key (sk-...)" placeholder="API Key (sk-...)" style="flex:2">
+    </div>
+
+    <!-- 多模型路由开关 -->
+    <h4 style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="toggleMultiModel()">
+      <span>🔀 多模型路由</span>
+      <span id="multi-model-status" style="font-size:9px;color:var(--text3)">已禁用</span>
+      <span style="flex:1"></span>
+      <input type="checkbox" id="set-multi-enabled" onchange="toggleMultiModel()" style="width:auto;margin:0">
+    </h4>
+    <div id="multi-model-section" style="display:none;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px">
+      <!-- Orchestrator -->
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:4px">🧠 编排器 (Orchestrator) — 强推理模型</div>
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:3px">
+          <select id="set-orch-model" style="flex:1">
+            <option value="deepseek-reasoner">DeepSeek R1</option>
+            <option value="deepseek-v4-pro">DeepSeek V4 Pro</option>
+            <option value="deepseek-chat">DeepSeek V3</option>
+            <option value="claude-opus-4-6">Claude Opus 4.6</option>
+            <option value="gpt-4o">GPT-4o</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:4px">
+          <input type="text" id="set-orch-url" aria-label="端点 (留空=默认)" placeholder="端点 (留空=默认)" style="flex:1;font-size:10px">
+          <input id="set-orch-key" type="password" aria-label="Key (留空=默认)" placeholder="Key (留空=默认)" style="flex:2;font-size:10px">
+        </div>
+      </div>
+      <!-- Worker -->
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:4px">⚡ 执行器 (Worker) — 性价比模型</div>
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:3px">
+          <select id="set-worker-model" style="flex:1">
+            <option value="deepseek-chat">DeepSeek V3</option>
+            <option value="deepseek-v4-pro">DeepSeek V4 Pro</option>
+            <option value="deepseek-reasoner">DeepSeek R1</option>
+            <option value="gpt-4o-mini">GPT-4o Mini</option>
+            <option value="claude-haiku-4-6">Claude Haiku 4.6</option>
+            <option value="claude-sonnet-4-6">Claude Sonnet 4.6</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:4px">
+          <input type="text" id="set-worker-url" aria-label="端点 (留空=默认)" placeholder="端点 (留空=默认)" style="flex:1;font-size:10px">
+          <input id="set-worker-key" type="password" aria-label="Key (留空=默认)" placeholder="Key (留空=默认)" style="flex:2;font-size:10px">
+        </div>
+      </div>
+      <!-- Evaluator -->
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:4px">📊 评估器 (Evaluator) — 轻量模型</div>
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:3px">
+          <select id="set-eval-model" style="flex:1">
+            <option value="deepseek-chat">DeepSeek V3</option>
+            <option value="deepseek-v4-pro">DeepSeek V4 Pro</option>
+            <option value="gpt-4o-mini">GPT-4o Mini</option>
+            <option value="claude-haiku-4-6">Claude Haiku 4.6</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:4px">
+          <input type="text" id="set-eval-url" aria-label="端点 (留空=默认)" placeholder="端点 (留空=默认)" style="flex:1;font-size:10px">
+          <input id="set-eval-key" type="password" aria-label="Key (留空=默认)" placeholder="Key (留空=默认)" style="flex:2;font-size:10px">
+        </div>
+      </div>
+    </div>
+
+    <h4>搜索配置</h4>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input type="text" id="set-tavily" aria-label="Tavily Key (tvly-...)" placeholder="Tavily Key (tvly-...)" style="flex:1">
+      <input type="text" id="set-brave" aria-label="Brave Key (BSA...)" placeholder="Brave Key (BSA...)" style="flex:1">
+      <input type="text" id="set-bing" aria-label="Bing Key" placeholder="Bing Key" style="flex:1">
+    </div>
+    <h4>搜索降级顺序</h4>
+    <div style="display:flex;gap:10px;margin-bottom:12px">
+      <label style="font-size:10px;color:var(--text2);cursor:pointer"><input type="checkbox" id="fb-baidu" checked> 百度</label>
+      <label style="font-size:10px;color:var(--text2);cursor:pointer"><input type="checkbox" id="fb-brave" checked> Brave</label>
+      <label style="font-size:10px;color:var(--text2);cursor:pointer"><input type="checkbox" id="fb-tavily"> Tavily</label>
+    </div>
+
+    <button class="btn-primary" onclick="saveSettings()" style="width:100%;padding:10px">保存并即时生效</button>
+    <div id="set-msg" style="font-size:10px;margin-top:6px;text-align:center"></div>
+  </div>
+</div>
+
+<!-- New Agent Modal -->
+<div role="dialog" aria-modal="true" class="modal-overlay" id="new-agent-modal">
+  <div class="modal-box">
+    <button class="close-btn" aria-label="关闭面板" onclick="closeNewAgent()">&times;</button>
+    <h3>创建智能体</h3>
+    <label>名称</label><input type="text" id="na-name" aria-label="my_agent" placeholder="my_agent">
+    <label>系统提示词（可选）</label><input type="text" id="na-prompt" aria-label="自定义系统提示词..." placeholder="自定义系统提示词...">
+    <label>选择技能</label>
+    <div class="check-grid" id="na-skills"></div>
+    <button class="btn-primary" onclick="createAgent()" style="width:100%;margin-top:10px">创建智能体</button>
+  </div>
+</div>
+
+<script src="/static/js/state.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/ws.js"></script>
+<script src="/static/js/ui.js"></script>
+<script src="/static/js/panels.js"></script>
+<script src="/static/js/sessions.js"></script>
+<script src="/static/js/agents.js"></script>
+<script src="/static/js/skills.js"></script>
+<script src="/static/js/modals.js"></script>
+<script src="/static/js/extras.js"></script>
+</body>
+</html>

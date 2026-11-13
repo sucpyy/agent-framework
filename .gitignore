@@ -1,0 +1,17 @@
+__pycache__/
+.venv/
+*.pyc
+*.pyo
+.checkpoints/
+.workspace_data/
+.sessions/
+documents/
+*.json.gz
+.env
+.agent_settings.json
+.auth/
+.claude/
+.memory/
+drafts/
+.pytest_cache/
+static/probe.txt
